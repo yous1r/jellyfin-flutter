@@ -27,6 +27,8 @@ jobs:
     name: 分析与单测
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
@@ -51,6 +53,10 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    # 打 v* tag 时最后一步要建 Release，必须能写仓库内容。GITHUB_TOKEN 在新仓库
+    # 默认是只读的，不显式声明会在发布那一步 403（前面的构建全跑完才失败，最亏）。
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
