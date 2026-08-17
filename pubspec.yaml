@@ -1,0 +1,38 @@
+name: jellfin_flutter
+description: Jellyfin/Emby 协议兼容的自研 Flutter 客户端，配合 python-strm 多视频流模式。
+publish_to: none
+version: 0.2.4+1
+
+environment:
+  sdk: ^3.12.0
+  flutter: ">=3.44.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  # HTTP：Emby/Jellyfin 协议与 python-strm 增强接口
+  dio: 5.9.0
+  # 状态管理与路由
+  flutter_riverpod: 2.6.1
+  go_router: 14.6.2
+  # 海报墙图片缓存
+  cached_network_image: 3.4.1
+  # 服务器地址 / token / 设备 ID 持久化
+  shared_preferences: 2.3.3
+  # 播放：使用 media_kit（libmpv/FFmpeg），支持 HLS 直链/硬件解码回退/软解。
+  # 相比 video_player（ExoPlayer），media_kit 在麒麟 990 等设备上有更好的兼容性，
+  # 硬解失败时自动回退 FFmpeg 软解，不会报 MediaCodecVideoRenderer error。
+  media_kit: ^1.2.6
+  media_kit_video: ^2.0.1
+  # Android 视频原生库（自动包含 media_kit_libs_android_video）
+  media_kit_libs_video: ^1.0.7
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  # fake_adapter 用到 MediaType/Headers 常量
+  http_parser: 4.1.2
+  flutter_lints: 5.0.0
+
+flutter:
+  uses-material-design: true

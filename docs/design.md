@@ -33,7 +33,9 @@ python-strm 通过 8097 端口提供 Emby 兼容代理（上游 fnOS trim @ 10.0
 播放：
 - `POST /emby/Items/{itemId}/PlaybackInfo` → MediaSources（代理注入 STRM 播放 URL）
 - python-strm 增强接口：
-  - `GET /api/v1/strm/probe/{cloud_type}/{file_id}` 已探测档位列表（resolution/protocol/playable）
+  - `GET /api/v1/strm/streams/{cloud_type}/{file_id}` **多视频流清单**（原画与各转码档
+    并列，带 display_name/分辨率/是否 HLS/稳定播放 URL）——画质菜单的首选数据源
+  - `GET /api/v1/strm/probe/{cloud_type}/{file_id}` 已探测档位列表（清单不可用时的回退）
   - `GET /api/v1/strm/play/{cloud_type}/{file_id}?resolution={r}` 指定档位播放（302/HLS）
 - 进度上报：`POST /emby/Sessions/Playing` / `/Playing/Progress` / `/Playing/Stopped`
 
@@ -71,23 +73,29 @@ abstract class PlayerAdapter {
 }
 ```
 
-- Android 实现：`media_kit`（libmpv）——直链 MP4/MKV 与 HLS 全兼容，外挂字幕直接加载
-- Web 实现：HTML5 `<video>` + hls.js（JS interop）——HLS 走 hls.js，MP4 直链原生播放
-- 画质切换：切档 = 记录当前 position → open(新档位 URL, start: position)；
-  档位列表来自 probe 接口；MediaSource 直链作为「原画」档
+- 实现：`VideoPlayerAdapter`（`video_player`）——Android 走 ExoPlayer（HLS 与 mkv/mp4
+  直链都支持），Web 走浏览器 `<video>`。若后续需要更强的容器/字幕支持（内嵌字幕、
+  冷门封装），再补一个 `media_kit`（libmpv）实现即可，`PlayerAdapter` 接口不用动
+- 画质切换：切档 = 记录当前 position → `open(新档位 URL, start: position)`。
+  多视频流模式下每个档位都是一条独立可播地址，不依赖播放引擎自己的 ABR；
+  档位列表来自 `/api/v1/strm/streams`，拿不到时回退 probe，再回退 PlaybackInfo 的
+  多 MediaSource（原生 Emby 服务器也能用）。用户选择记在 `preferred_resolution`
+- 编排层 `PlaybackController` 负责选档/切档/进度上报，与具体播放引擎解耦，
+  用 `FakePlayerAdapter` 做交互单测
 - 字幕：优先 MediaStreams 外挂字幕（`/Videos/{id}/{mediaSourceId}/Subtitles/...` 或代理下发地址）；
-  内嵌字幕由 mpv 侧解复用（Web 端 MVP 仅支持外挂）
+  内嵌字幕交给播放引擎解复用。字幕选择 UI 尚未实现（见里程碑）
 
 ## 5. 里程碑
 
-- M0 环境与脚手架：Flutter SDK（国内镜像）、`flutter create`（android,web）、依赖、CI 命令
-  （`flutter analyze` + `flutter test`）全绿、web 构建可从 NAS 提供
-- M1 API 客户端 + 登录（单测：认证头构造、token 持久化、401 处理）
-- M2 首页（Views/Latest/Resume 横排）+ 海报墙分页
-- M3 详情页 + 季/集导航
-- M4 播放器（Android media_kit / Web hls.js）+ 画质切换 + 字幕 + 进度上报
-- M5 搜索 + 继续观看闭环（NextUp、断点续播）
-- M6 Android TV 焦点导航与遥控适配（MVP 后）
+- [x] M0 环境与脚手架：Flutter SDK 3.44.9、android/web 平台产物、依赖、
+  `flutter analyze` + `flutter test` 全绿、`flutter build web` 可产出可托管的静态站点
+- [x] M1 API 客户端 + 登录（认证头构造、会话持久化、401 掉回登录页）
+- [x] M2 首页（Views/Latest/Resume 横排）+ 海报墙分页
+- [x] M3 详情页 + 季/集导航
+- [x] M4 播放器 + 多视频流画质切换 + 进度上报
+- [x] M5 搜索 + 继续观看闭环（断点续播）
+- [ ] M6 Android TV 焦点导航与遥控适配（MVP 后）
+- [ ] 字幕选择 UI（外挂字幕；当前依赖播放引擎内置处理）
 
 ## 6. 测试策略
 

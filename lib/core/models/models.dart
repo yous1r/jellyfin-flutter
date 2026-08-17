@@ -102,6 +102,10 @@ class MediaSourceInfo {
   final String container;
   final List<MediaStreamInfo> mediaStreams;
 
+  /// 直链播放需要携带的 HTTP 请求头（网盘 Cookie/UA）。
+  /// 服务端在 PlaybackInfo 的 MediaSource 上按 RequiredHttpHeaders 下发。
+  final Map<String, String> requiredHttpHeaders;
+
   const MediaSourceInfo({
     required this.id,
     this.name = '',
@@ -109,6 +113,7 @@ class MediaSourceInfo {
     this.path = '',
     this.container = '',
     this.mediaStreams = const [],
+    this.requiredHttpHeaders = const {},
   });
 
   /// 播放优先取 DirectStreamUrl，缺省回落 Path。
@@ -124,6 +129,9 @@ class MediaSourceInfo {
             .whereType<Map<String, dynamic>>()
             .map(MediaStreamInfo.fromJson)
             .toList(),
+        requiredHttpHeaders:
+            ((json['RequiredHttpHeaders'] as Map?) ?? const {})
+                .map((k, v) => MapEntry(k.toString(), v.toString())),
       );
 }
 
@@ -182,6 +190,28 @@ class BaseItem {
     this.mediaSources = const [],
     this.mediaStreams = const [],
   });
+
+  /// 卡片副标题：剧集显示「剧名 · S1E2」，其余显示年份。
+  String get subtitle {
+    if (type == 'Episode') {
+      final season = parentIndexNumber;
+      final episode = indexNumber;
+      final code =
+          (season != null && episode != null) ? 'S${season}E$episode' : '';
+      return [seriesName, code].where((v) => v.isNotEmpty).join(' · ');
+    }
+    return productionYear?.toString() ?? '';
+  }
+
+  /// Emby 的 tick 是 100 纳秒。
+  Duration get runtime => Duration(microseconds: runTimeTicks ~/ 10);
+
+  /// 上次播放到的位置，用于断点续播。
+  Duration get resumePosition =>
+      Duration(microseconds: userData.playbackPositionTicks ~/ 10);
+
+  bool get canResume =>
+      userData.playbackPositionTicks > 0 && userData.playedPercentage < 95;
 
   factory BaseItem.fromJson(Map<String, dynamic> json) => BaseItem(
         id: (json['Id'] ?? '') as String,

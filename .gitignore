@@ -18,3 +18,10 @@ android/key.properties
 
 # 环境
 .env
+
+# APK 产物（保留 dist/README.md 说明）
+dist/*.apk
+
+# 真机调试截图（放根目录临时看的，不入库）
+Screenshot_*.jpg
+Screenshot_*.png

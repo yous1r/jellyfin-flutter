@@ -1,0 +1,47 @@
+{
+  "cloud_type": "115",
+  "file_id": "a7v1aeu9tfilfhheh",
+  "default_resolution": "raw",
+  "master_url": "http://strm.test:8095/api/v1/strm/play/115/a7v1aeu9tfilfhheh?mode=multistream",
+  "streams": [
+    {
+      "resolution": "raw",
+      "display_name": "原画",
+      "protocol": "direct",
+      "source": "download",
+      "is_original": true,
+      "container": "mkv",
+      "width": null,
+      "height": null,
+      "duration": 2712.5,
+      "codecs": "",
+      "url": "http://strm.test:8095/api/v1/strm/play/115/a7v1aeu9tfilfhheh?resolution=raw"
+    },
+    {
+      "resolution": "4k",
+      "display_name": "4K",
+      "protocol": "hls_master",
+      "source": "transcode",
+      "is_original": false,
+      "container": "m3u8",
+      "width": 3840,
+      "height": 2160,
+      "duration": 2712.5,
+      "codecs": "avc1.640033,mp4a.40.2",
+      "url": "http://strm.test:8095/api/v1/strm/play/115/a7v1aeu9tfilfhheh?resolution=4k"
+    },
+    {
+      "resolution": "ud",
+      "display_name": "1080P",
+      "protocol": "hls_master",
+      "source": "transcode",
+      "is_original": false,
+      "container": "m3u8",
+      "width": 1920,
+      "height": 1080,
+      "duration": 2712.5,
+      "codecs": "avc1.640028,mp4a.40.2",
+      "url": "http://strm.test:8095/api/v1/strm/play/115/a7v1aeu9tfilfhheh?resolution=ud"
+    }
+  ]
+}

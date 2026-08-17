@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 
+import '../app_version.dart';
 import '../models/models.dart';
 
 /// Emby/Jellyfin 协议客户端（面向 python-strm 代理，兼容标准服务端）。
@@ -22,7 +23,7 @@ class EmbyApiClient {
     this.client = 'JellfinFlutter',
     this.device = 'Flutter',
     required this.deviceId,
-    this.version = '0.1.0',
+    this.version = appVersion,
   }) : dio = dio ?? Dio(BaseOptions(baseUrl: baseUrl)) {
     this.dio.options.baseUrl = baseUrl;
     this.dio.interceptors.add(
